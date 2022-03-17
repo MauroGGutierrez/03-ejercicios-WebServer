@@ -1,6 +1,31 @@
 var http = require("http");
 var fs = require("fs");
-const beatles = require("./beatles");
+const beatles = [
+  {
+    name: "John Lennon",
+    birthdate: "09/10/1940",
+    profilePic:
+      "https://blogs.correiobraziliense.com.br/trilhasonora/wp-content/uploads/sites/39/2020/10/CBNFOT081020100047-550x549.jpg",
+  },
+  {
+    name: "Paul McCartney",
+    birthdate: "18/06/1942",
+    profilePic:
+      "http://gazettereview.com/wp-content/uploads/2016/06/paul-mccartney.jpg",
+  },
+  {
+    name: "George Harrison",
+    birthdate: "25/02/1946",
+    profilePic:
+      "https://canaldosbeatles.files.wordpress.com/2012/02/george-george-harrison-8321345-438-600.jpg",
+  },
+  {
+    name: "Richard Starkey",
+    birthdate: "07/08/1940",
+    profilePic:
+      "http://cp91279.biography.com/BIO_Bio-Shorts_0_Ringo-Starr_SF_HD_768x432-16x9.jpg",
+  },
+];
 
 http
   .createServer(function (req, res) {
@@ -9,16 +34,30 @@ http
       res.writeHead(200, { "Content-Type": "text/html" });
       var html = fs.readFileSync(__dirname + "/index.html");
       res.end(html);
-    } else if (req.url === "/api") {
-      //Si la URL es /arcoiris_doge devolvemos la imagen
-      res.writeHead(200, { "Content-Type": "text/json" });
-      var api = fs.readFileSync(__dirname + "/beatles.js");
-      res.end(api);
-    } else if (req.url === "/api/JohnLennon") {
-      //Si la URL es /arcoiris_doge devolvemos la imagen
-      res.writeHead(200, { "Content-Type": "text/json" });
-      var btl1 = fs.readFileSync(__dirname + beatles[1]);
-      res.end(btl1);
+    }
+    if (req.url === "/api") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(beatles));
+    }
+    if (req.url.includes("/api/")) {
+      const params = req.url.replace("%20", " ").replace("/api/", "");
+      res.writeHead(200, { "Content-Type": "application/json" });
+      const beatle = beatles.find((item) => item.name === params);
+      res.end(JSON.stringify(beatle));
+    }
+    if (!req.url.includes("/api/")) {
+      const params = req.url.replace("%20", " ").replace("/", "");
+      const beatle = beatles.find((item) => item.name === params);
+      if (beatle) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        let btls = fs.readFileSync(__dirname + "/beatle.html", "utf8");
+        btls = btls.replace("{beatleName}", beatle.name);
+        btls = btls.replace("{birthDate}", beatle.birthdate);
+        btls = btls.replace("{imgBeatle}", beatle.profilePic);
+        res.end(btls);
+      } else {
+        res.end(`<h1>NO EXISTE ${params}</h1>`);
+      }
     } else {
       res.writeHead(404); //Ponemos el status del response a 404: Not Found
       res.end(); //No devolvemos nada más que el estado.
