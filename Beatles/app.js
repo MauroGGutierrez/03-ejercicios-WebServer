@@ -46,11 +46,11 @@ http
       res.end(JSON.stringify(beatle));
     }
     if (!req.url.includes("/api/")) {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      let btls = fs.readFileSync(__dirname + "/beatle.html", "utf8");
       const params = req.url.replace("%20", " ").replace("/", "");
       const beatle = beatles.find((item) => item.name === params);
       if (beatle) {
-        res.writeHead(200, { "Content-Type": "text/html" });
-        let btls = fs.readFileSync(__dirname + "/beatle.html", "utf8");
         btls = btls.replace("{beatleName}", beatle.name);
         btls = btls.replace("{birthDate}", beatle.birthdate);
         btls = btls.replace("{imgBeatle}", beatle.profilePic);
@@ -63,4 +63,4 @@ http
       res.end(); //No devolvemos nada más que el estado.
     }
   })
-  .listen(1337, "127.0.0.1");
+  .listen(1337, "localhost");
