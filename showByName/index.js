@@ -1,24 +1,27 @@
-var http = require("http");
 var fs = require("fs");
-const url = require("url");
+var http = require("http");
 
-http.createServer((req, res) => {
-  const params = req.url.replace("/", "");
-  fs.readdir("./images", (err, archivos) => {
-    if (err) {
-      console.log(err);
-    }
-    if (archivos.includes(params)) {
-      res.writeHead(200, { "Content-Type": "image/jpg" });
-      let img = archivos.find((arch) => arch === params);
-      const resul = fs.readFileSync(`${__dirname}/images/${img}`);
-      res.end(resul);
-    } else {
-      res.writeHead(404);
-      res.end();
-    }
-  });
-});
+// Escribí acá tu servidor
+
+http
+  .createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "image/jpg" });
+    const params = req.url.replace("/", "").replace(".", ".jpg");
+    fs.readdir("./images", (err, archivos) => {
+      if (err) {
+        console.log(err);
+      }
+      if (archivos.includes(params)) {
+        const img = archivos.find((arch) => arch === params);
+        const resul = fs.readFileSync(`${__dirname}/images/${img}`);
+        res.end(resul);
+      } else {
+        res.writeHead(404);
+        res.end("No se encuentra");
+      }
+    });
+  })
+  .listen(1337, "localhost");
 
 // // Escribí acá tu servidor
 // http
